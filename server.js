@@ -48,20 +48,25 @@ app.get('/adminLogin', async (req, res) => {
   }
 })
 
-app.post('/attendance', async (req, res) => {
+app.get('/attendance', async (req, res) => {
   try {
-    const { saveData } = req.body
-    const user = await Attendance.create(saveData);
-    res.status(200).json(user);
-  } catch (error) {
-    if (error['code'] === 11000) {
-      res.status(400).json({ status: FAILED, error: "alreadyExits", keyValue: error['keyValue'] });
-    } else {
+    const presentCount = await Attendance.find({isPresent:true}).countDocuments();
+    const absentCount = await Attendance.find({isPresent:false}).countDocuments();
+    res.status(200).json({presentCount, absentCount});
+  } catch (error) {   
       res.status(400).json({ error: error.message });
-    }
   }
 })
 
+app.get('/shiftCount', async (req, res) => { // in development
+  try {
+    const presentCount = await Shift.find({isPresent:true}).countDocuments();
+    const absentCount = await Shift.find({isPresent:false}).countDocuments();
+    res.status(200).json({presentCount, absentCount});
+  } catch (error) {   
+      res.status(400).json({ error: error.message });
+  }
+})
 
 app.post('/attendanceEntry', async (req, res) => {
   try {
